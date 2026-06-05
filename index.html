@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>강남베드로병원 뉴스 모니터링</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Pretendard',-apple-system,sans-serif;}
+body{background:#f8f9fa;min-height:100vh;padding:40px 16px 60px;}
+a{text-decoration:none;}
+.card{background:#fff;border:1px solid #dadce0;border-radius:8px;padding:20px;}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:12px;max-width:960px;margin-left:auto;margin-right:auto;}
+.grid7{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;max-width:960px;margin:0 auto;}
+.section-label{font-size:13px;font-weight:600;color:#5f6368;margin-bottom:14px;}
+.meta{font-size:11px;color:#80868b;margin-top:3px;display:flex;align-items:center;gap:4px;}
+.src-n{display:inline-block;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;color:#fff;background:#03c75a;}
+.src-g{display:inline-block;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;color:#fff;background:#4285f4;}
+.news-item{display:block;padding:9px 0;border-bottom:1px solid #dadce0;text-decoration:none;}
+.news-item:last-child{border-bottom:none;}
+.news-item:hover .news-title{text-decoration:underline;}
+.news-title{font-size:13px;color:#202124;line-height:1.55;}
+.hosp-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f1f3f4;}
+.badge{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#fff;}
+.hosp-name{font-size:14px;font-weight:700;color:#202124;}
+.hosp-desc{font-size:11px;color:#80868b;margin-top:1px;}
+.hosp-news-item{display:block;padding:8px 0;border-bottom:1px solid #f1f3f4;text-decoration:none;}
+.hosp-news-item:last-of-type{border-bottom:none;}
+.hosp-news-item:hover .hosp-news-title{text-decoration:underline;}
+.hosp-news-title{font-size:12px;color:#202124;line-height:1.5;}
+.more-btns{display:flex;gap:6px;margin-top:10px;}
+.more-btn{flex:1;display:flex;align-items:center;justify-content:center;padding:6px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;}
+.btn-naver{background:#f6fef9;color:#03c75a;border:1px solid #d4f5e3;}
+.btn-google{background:#f0f4ff;color:#4285f4;border:1px solid #d0e0ff;}
+.weather-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;}
+.weather-chip{background:#f8f9fa;border-radius:8px;padding:8px 12px;}
+.chip-label{font-size:11px;color:#80868b;margin-bottom:2px;}
+.chip-val{font-size:14px;font-weight:500;color:#202124;}
+.search-wrap{display:flex;align-items:center;border:1px solid #dadce0;border-radius:24px;padding:0 16px;height:48px;background:#fff;box-shadow:0 1px 3px rgba(32,33,36,0.12);gap:10px;}
+.search-wrap:focus-within{border-color:#1a73e8;}
+.search-input{flex:1;border:none;outline:none;font-size:16px;color:#202124;background:transparent;font-family:'Pretendard';}
+.search-engine{border:none;outline:none;background:transparent;color:#5f6368;font-size:13px;cursor:pointer;}
+.btn{padding:8px 20px;border-radius:4px;border:1px solid #dadce0;background:#f8f9fa;color:#202124;font-size:14px;cursor:pointer;font-weight:500;}
+.btn:hover{background:#e8f0fe;border-color:#1a73e8;color:#1a73e8;}
+.refresh-btn{font-size:13px;color:#1a73e8;background:none;border:1px solid #dadce0;border-radius:20px;padding:5px 16px;cursor:pointer;font-weight:500;}
+.refresh-btn:hover:not(:disabled){background:#e8f0fe;}
+.refresh-btn:disabled{color:#aaa;cursor:not-allowed;}
+.spinner{width:16px;height:16px;border:2px solid #e0e0e0;border-top-color:#4285f4;border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;}
+.loading-row{display:flex;align-items:center;gap:8px;padding:12px 0;font-size:12px;color:#80868b;}
+.updated{font-size:11px;color:#34a853;font-weight:500;margin-left:6px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div style="text-align:center;margin-bottom:28px;">
+  <div id="clock" style="font-size:clamp(48px,10vw,80px);font-weight:300;letter-spacing:-3px;color:#202124;line-height:1;"></div>
+  <div id="date" style="font-size:15px;color:#5f6368;margin-top:10px;"></div>
+</div>
+<div style="max-width:580px;margin:0 auto 32px;">
+  <div style="text-align:center;margin-bottom:20px;">
+    <div style="font-size:32px;font-weight:700;color:#202124;letter-spacing:-0.5px;">강남베드로병원</div>
+    <div style="font-size:18px;font-weight:500;color:#5f6368;margin-top:4px;">뉴스 모니터링</div>
+  </div>
+  <div class="search-wrap">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#80868b" stroke-width="2"/><path d="M20 20l-3-3" stroke="#80868b" stroke-width="2" stroke-linecap="round"/></svg>
+    <input class="search-input" id="q" type="text" placeholder="검색어를 입력하세요" onkeydown="if(event.key==='Enter')doSearch()"/>
+    <select class="search-engine" id="eng">
+      <option value="https://search.naver.com/search.naver?where=news&sort=1&query=">Naver 뉴스</option>
+      <option value="https://www.google.com/search?q=">Google</option>
+    </select>
+  </div>
+  <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;">
+    <button class="btn" onclick="doSearch()">검색</button>
+    <button class="btn" onclick="window.open('https://search.naver.com/search.naver?where=news&sort=1&query=강남베드로병원','_blank')">강남베드로 뉴스</button>
+  </div>
+</div>
+<div class="grid2">
+  <div class="card">
+    <div class="section-label">🌤 날씨 <span style="font-size:11px;color:#80868b;font-weight:400;">📍 서울 강남구 도곡동</span></div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+      <span style="font-size:44px;line-height:1;">⛅</span>
+      <div>
+        <div style="font-size:38px;font-weight:400;color:#202124;line-height:1;">23°</div>
+        <div style="font-size:14px;color:#5f6368;margin-top:4px;">구름 조금</div>
+      </div>
+    </div>
+    <div class="weather-grid">
+      <div class="weather-chip"><div class="chip-label">체감온도</div><div class="chip-val">21°C</div></div>
+      <div class="weather-chip"><div class="chip-label">습도</div><div class="chip-val">58%</div></div>
+      <div class="weather-chip"><div class="chip-label">미세먼지</div><div class="chip-val">보통</div></div>
+      <div class="weather-chip"><div class="chip-label">바람</div><div class="chip-val">3.2 m/s</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-label">📰 오늘의 의료계 주요 뉴스 <span class="updated" id="health-updated"></span></div>
+    <div id="health-news"><div class="loading-row"><div class="spinner"></div>뉴스 불러오는 중...</div></div>
+    <div style="display:flex;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #f1f3f4;">
+      <a href="https://search.naver.com/search.naver?where=news&sort=1&query=의료+병원+뉴스" target="_blank" class="more-btn btn-naver">🟢 네이버 의료뉴스</a>
+      <a href="https://news.google.com/search?q=의료+병원+뉴스&hl=ko&gl=KR" target="_blank" class="more-btn btn-google">🔵 Google 의료뉴스</a>
+    </div>
+  </div>
+</div>
+<div style="max-width:960px;margin:20px auto 12px;display:flex;justify-content:space-between;align-items:center;">
+  <div style="font-size:14px;font-weight:600;color:#5f6368;">병원별 최신 소식 <span class="updated" id="hosp-updated"></span></div>
+  <button class="refresh-btn" id="ref-btn" onclick="loadAll()">🔄 새로고침</button>
+</div>
+<div class="grid7" id="hosp-grid"></div>
+<script>
+const API = '/api/news';
+const hospitals=[
+  {name:"강남베드로병원",color:"#1a73e8",desc:"척추·관절·뇌심혈관 종합병원",q:"강남베드로병원"},
+  {name:"기쁨병원",color:"#ea4335",desc:"외과 전문 종합병원",q:"기쁨병원"},
+  {name:"윌스기념병원",color:"#34a853",desc:"척추·뇌신경 전문병원",q:"윌스기념병원"},
+  {name:"동탄시티병원",color:"#f4a400",desc:"척추·관절 전문병원",q:"동탄시티병원"},
+  {name:"우리들병원",color:"#9334e6",desc:"척추 전문병원",q:"우리들병원"},
+  {name:"연세사랑병원",color:"#fa7b17",desc:"관절·척추 전문병원",q:"연세사랑병원"},
+  {name:"명지병원",color:"#24c1e0",desc:"스마트 종합병원",q:"명지병원"},
+];
+function tick(){
+  const now=new Date(),days=['일','월','화','수','목','금','토'];
+  let h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
+  const ap=h<12?'AM':'PM';h=h%12||12;
+  document.getElementById('clock').textContent=`${ap} ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  document.getElementById('date').textContent=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+}
+tick();setInterval(tick,1000);
+function doSearch(){const q=document.getElementById('q').value.trim();if(!q)return;window.open(document.getElementById('eng').value+encodeURIComponent(q),'_blank');}
+function nowStr(){const d=new Date();return `· ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 업데이트`;}
+function badge(f){return f==='n'?'<span class="src-n">N</span>':'<span class="src-g">G</span>';}
+async function fetchNews(q){const r=await fetch(`${API}?query=${encodeURIComponent(q)}`);return r.json();}
+async function loadHealthNews(){
+  try{
+    const d=await fetchNews('한국 의료 병원 척추 관절 뉴스');
+    const items=[...d.naver,...d.google];
+    document.getElementById('health-news').innerHTML=items.length
+      ?items.map(a=>`<a class="news-item" href="${a.url}" target="_blank" rel="noopener noreferrer"><div class="news-title">${a.title}</div><div class="meta">${badge(a.from)} ${a.source} · ${a.time}</div></a>`).join('')
+      :'<div style="font-size:12px;color:#aaa;padding:8px 0;">뉴스 없음</div>';
+    document.getElementById('health-updated').textContent=nowStr();
+  }catch(e){document.getElementById('health-news').innerHTML=`<div style="font-size:12px;color:#ea4335;">오류: ${e.message}</div>`;}
+}
+function initCards(){
+  document.getElementById('hosp-grid').innerHTML=hospitals.map(h=>`
+    <div class="card" id="card-${h.name}">
+      <div class="hosp-header">
+        <div class="badge" style="background:${h.color}">${h.name.slice(0,2)}</div>
+        <div><div class="hosp-name">${h.name}</div><div class="hosp-desc">${h.desc}</div></div>
+      </div>
+      <div class="loading-row"><div class="spinner"></div>뉴스 검색 중...</div>
+    </div>`).join('');
+}
+async function loadHospNews(){
+  for(const h of hospitals){
+    const card=document.getElementById(`card-${h.name}`);
+    const nUrl=`https://search.naver.com/search.naver?where=news&sort=1&query=${encodeURIComponent(h.q)}`;
+    const gUrl=`https://news.google.com/search?q=${encodeURIComponent(h.q)}&hl=ko&gl=KR`;
+    try{
+      const d=await fetchNews(h.q);
+      const items=[...d.naver,...d.google];
+      const html=items.length
+        ?items.map(n=>`<a class="hosp-news-item" href="${n.url}" target="_blank" rel="noopener noreferrer"><div class="hosp-news-title">${n.title}</div><div class="meta">${badge(n.from)} ${n.source} · ${n.time}</div></a>`).join('')
+        :'<div style="font-size:12px;color:#aaa;padding:8px 0;">최근 기사 없음</div>';
+      card.querySelector('.loading-row').outerHTML=`${html}<div class="more-btns"><a href="${nUrl}" target="_blank" class="more-btn btn-naver">🟢 네이버 더보기</a><a href="${gUrl}" target="_blank" class="more-btn btn-google">🔵 Google 더보기</a></div>`;
+    }catch(e){
+      card.querySelector('.loading-row').outerHTML=`<div style="font-size:12px;color:#ea4335;padding:6px 0;">오류</div><div class="more-btns"><a href="${nUrl}" target="_blank" class="more-btn btn-naver">🟢 네이버 더보기</a><a href="${gUrl}" target="_blank" class="more-btn btn-google">🔵 Google 더보기</a></div>`;
+    }
+    await new Promise(r=>setTimeout(r,300));
+  }
+  document.getElementById('hosp-updated').textContent=nowStr();
+}
+async function loadAll(){
+  const btn=document.getElementById('ref-btn');
+  btn.disabled=true;btn.textContent='⟳ 로딩 중...';
+  initCards();
+  document.getElementById('health-news').innerHTML='<div class="loading-row"><div class="spinner"></div>뉴스 불러오는 중...</div>';
+  await Promise.all([loadHealthNews(),loadHospNews()]);
+  btn.disabled=false;btn.textContent='🔄 새로고침';
+}
+loadAll();
+</script>
+</body>
+</html>
