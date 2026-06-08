@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   // ── 네이버 뉴스 API ──────────────────────────────
   try {
-    const naverUrl = `https://openapi.naver.com/v1/search/news.json?query=${encodeURIComponent(query)}&display=2&sort=date`;
+    const naverUrl = `https://openapi.naver.com/v1/search/news.json?query=${encodeURIComponent(query)}&display=5&sort=date`;
     const naverRes = await fetch(naverUrl, {
       headers: {
         'X-Naver-Client-Id': NAVER_ID,
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     const rssRes = await fetch(rssUrl);
     const rssText = await rssRes.text();
 
-    const items = [...rssText.matchAll(/<item>([\s\S]*?)<\/item>/g)].slice(0, 2);
+    const items = [...rssText.matchAll(/<item>([\s\S]*?)<\/item>/g)].slice(0, 5);
     results.google = items.map(m => {
       const block = m[1];
       const getTag = tag => { const r = block.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`)); return r ? r[1].replace(/<!\[CDATA\[|\]\]>/g,'').trim() : ''; };
