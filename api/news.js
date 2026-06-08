@@ -11,8 +11,11 @@ export default async function handler(req, res) {
   const results = { naver: [], google: [] };
 
   // ── 네이버 뉴스 API ──────────────────────────────
+  // 검색어가 길면 짧게 핵심만 추출
+  const naverQuery = query.replace(/"/g, '').split(' OR ')[0].split(' ').slice(0,3).join(' ');
+
   try {
-    const naverUrl = `https://openapi.naver.com/v1/search/news.json?query=${encodeURIComponent(query)}&display=5&sort=date`;
+    const naverUrl = `https://openapi.naver.com/v1/search/news.json?query=${encodeURIComponent(naverQuery)}&display=5&sort=date`;
     const naverRes = await fetch(naverUrl, {
       headers: {
         'X-Naver-Client-Id': NAVER_ID,
