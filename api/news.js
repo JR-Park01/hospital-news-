@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
-  const { query, type } = req.query;
+  const { query } = req.query;
   if (!query) return res.status(400).json({ error: 'query 파라미터 필요' });
 
   const NAVER_ID     = process.env.NAVER_CLIENT_ID;
