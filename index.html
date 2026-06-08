@@ -135,7 +135,7 @@ a{text-decoration:none;}
 <script>
 const API='/api/news';
 const mainHosp={name:'강남베드로병원',color:'#1a73e8',q:'"강남베드로병원"'};
-const healthQuery='척추 OR 관절 OR 심뇌혈관 OR 로봇수술 OR 서울아산병원 OR 세브란스 OR 삼성서울병원 OR 의협 OR 재생의료 OR 첨단재생의료 병원 뉴스';
+const healthQuery='척추 관절 심뇌혈관 로봇수술 병원 뉴스';
 const competitors=[
   {name:'기쁨병원',        color:'#e91e8c', desc:'외과 전문',          q:'"기쁨병원"'},
   {name:'나누리병원',      color:'#34a853', desc:'척추·관절 전문',      q:'"나누리병원"'},
@@ -178,69 +178,4 @@ async function loadHealthNews(){
       :'<div style="font-size:12px;color:#aaa;padding:8px 0;">뉴스 없음</div>';
     document.getElementById('health-updated').textContent=nowStr();
   }catch(e){
-    el.innerHTML=`<div style="font-size:12px;color:#ea4335;">오류: ${e.message}</div>`;
-  }
-}
-
-async function loadMainHosp(){
-  const el=document.getElementById('main-hosp-news');
-  try{
-    const d=await fetchNews(mainHosp.q);
-    const items=[...d.naver,...d.google].slice(0,6);
-    el.innerHTML=items.length
-      ?`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0 20px;">${items.map(n=>`<a class="hosp-news-item" href="${n.url}" target="_blank" rel="noopener noreferrer"><div class="hosp-news-title" style="font-size:13px;">${n.title}</div><div class="meta">${badge(n.from)} ${n.source} · ${n.time}</div></a>`).join('')}</div>`
-      :'<div style="font-size:12px;color:#aaa;padding:8px 0;">최근 기사 없음</div>';
-  }catch(e){
-    el.innerHTML=`<div style="font-size:12px;color:#ea4335;">오류: ${e.message}</div>`;
-  }
-}
-
-function initCards(){
-  document.getElementById('competitor-grid').innerHTML=competitors.map(h=>`
-    <div class="card" id="card-${h.name}">
-      <div class="hosp-header">
-        <div class="badge" style="background:${h.color};font-size:10px;">${h.name.slice(0,2)}</div>
-        <div><div class="hosp-name">${h.name}</div><div class="hosp-desc">${h.desc}</div></div>
-      </div>
-      <div class="loading-row"><div class="spinner"></div>검색 중...</div>
-    </div>`).join('');
-}
-
-async function fillCard(h){
-  const card=document.getElementById(`card-${h.name}`);
-  const nUrl=`https://search.naver.com/search.naver?where=news&sort=1&query=${encodeURIComponent(h.q)}`;
-  const gUrl=`https://news.google.com/search?q=${encodeURIComponent(h.q)}&hl=ko&gl=KR`;
-  try{
-    const d=await fetchNews(h.q);
-    const items=[...d.naver,...d.google];
-    const html=items.length
-      ?items.map(n=>`<a class="hosp-news-item" href="${n.url}" target="_blank" rel="noopener noreferrer"><div class="hosp-news-title">${n.title}</div><div class="meta">${badge(n.from)} ${n.source} · ${n.time}</div></a>`).join('')
-      :'<div style="font-size:12px;color:#aaa;padding:8px 0;">최근 기사 없음</div>';
-    card.querySelector('.loading-row').outerHTML=`${html}<div class="more-btns"><a href="${nUrl}" target="_blank" class="more-btn btn-naver">🟢 네이버</a><a href="${gUrl}" target="_blank" class="more-btn btn-google">🔵 Google</a></div>`;
-  }catch(e){
-    card.querySelector('.loading-row').outerHTML=`<div style="font-size:12px;color:#ea4335;padding:6px 0;">오류</div><div class="more-btns"><a href="${nUrl}" target="_blank" class="more-btn btn-naver">🟢 네이버</a><a href="${gUrl}" target="_blank" class="more-btn btn-google">🔵 Google</a></div>`;
-  }
-}
-
-async function loadHospCards(){
-  initCards();
-  for(const h of competitors){
-    await fillCard(h);
-    await new Promise(r=>setTimeout(r,300));
-  }
-}
-
-async function loadAll(){
-  const btn=document.getElementById('ref-btn');
-  btn.disabled=true;btn.textContent='⟳ 로딩 중...';
-  document.getElementById('main-hosp-news').innerHTML='<div class="loading-row"><div class="spinner"></div>검색 중...</div>';
-  document.getElementById('health-news').innerHTML='<div class="loading-row"><div class="spinner"></div>뉴스 불러오는 중...</div>';
-  initCards();
-  await Promise.all([loadHealthNews(),loadMainHosp(),loadHospCards()]);
-  btn.disabled=false;btn.textContent='🔄 새로고침';
-}
-
-loadAll();
-</script>
-</body>
-</html>
+    el.innerHTM
