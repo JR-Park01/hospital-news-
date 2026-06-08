@@ -12,7 +12,6 @@ a{text-decoration:none;}
 .card{background:#fff;border:1px solid #dadce0;border-radius:8px;padding:20px;}
 .section-title{font-size:14px;font-weight:700;color:#202124;margin:28px auto 12px;max-width:960px;}
 .section-sub{font-size:11px;color:#80868b;font-weight:400;margin-left:6px;}
-.grid-main{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px;max-width:960px;margin-left:auto;margin-right:auto;}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;max-width:960px;margin-left:auto;margin-right:auto;}
 .grid5{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;max-width:960px;margin:0 auto;}
 .section-label{font-size:13px;font-weight:600;color:#5f6368;margin-bottom:14px;}
@@ -52,20 +51,9 @@ a{text-decoration:none;}
 .loading-row{display:flex;align-items:center;gap:8px;padding:12px 0;font-size:12px;color:#80868b;}
 .updated{font-size:11px;color:#34a853;font-weight:500;margin-left:6px;}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* 탭 */
-.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
-.tab-btn{padding:5px 14px;border-radius:20px;border:1px solid #dadce0;background:#f8f9fa;color:#5f6368;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
-.tab-btn.active{background:#1a73e8;color:#fff;border-color:#1a73e8;}
-.tab-panel{display:none;}
-.tab-panel.active{display:block;}
-
-/* 강남베드로 강조 카드 */
 .main-hosp-card{background:linear-gradient(135deg,#e8f0fe 0%,#fff 60%);border:2px solid #1a73e8;border-radius:12px;padding:20px;max-width:960px;margin:0 auto 12px;}
 .main-hosp-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #c5d8fd;}
 .main-badge{width:44px;height:44px;border-radius:50%;background:#1a73e8;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;}
-.main-hosp-news{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0;}
-.divider-label{font-size:11px;font-weight:700;color:#aaa;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1px;}
 </style>
 </head>
 <body>
@@ -94,7 +82,6 @@ a{text-decoration:none;}
   </div>
 </div>
 
-<!-- 날씨 -->
 <div class="grid2" style="margin-bottom:12px;">
   <div class="card">
     <div class="section-label">🌤 날씨 <span style="font-size:11px;color:#80868b;font-weight:400;">📍 서울 강남구 도곡동</span></div>
@@ -113,7 +100,6 @@ a{text-decoration:none;}
     </div>
   </div>
 
-  <!-- 의료계 뉴스 탭 -->
   <div class="card">
     <div class="section-label">📰 오늘의 의료계 주요 뉴스 <span class="updated" id="health-updated"></span></div>
     <div id="health-news"><div class="loading-row"><div class="spinner"></div>뉴스 불러오는 중...</div></div>
@@ -124,7 +110,6 @@ a{text-decoration:none;}
   </div>
 </div>
 
-<!-- 강남베드로병원 단독 -->
 <div class="section-title">🏥 강남베드로병원 <span class="section-sub">실시간 뉴스 모니터링</span></div>
 <div class="main-hosp-card">
   <div class="main-hosp-header">
@@ -141,39 +126,30 @@ a{text-decoration:none;}
   <div id="main-hosp-news"><div class="loading-row"><div class="spinner"></div>뉴스 검색 중...</div></div>
 </div>
 
-<!-- 병원별 최신소식 -->
 <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
   <span>🏥 병원별 최신 소식</span>
   <button class="refresh-btn" id="ref-btn" onclick="loadAll()">🔄 새로고침</button>
 </div>
 <div class="grid5" id="competitor-grid"></div>
-<div class="grid5" style="margin-top:12px;" id="monitor-grid"></div>
 
 <script>
 const API='/api/news';
-
-// ── 통합 의료 뉴스 키워드 ─────────────────────────
-const healthQuery='척추 OR 관절 OR 심뇌혈관 OR 로봇수술 OR 서울아산병원 OR 세브란스 OR 삼성서울병원 OR 의협 OR 재생의료 OR 첨단재생의료 병원 뉴스';
-
-// ── 병원 목록 ─────────────────────────────────────
 const mainHosp={name:'강남베드로병원',color:'#1a73e8',q:'"강남베드로병원"'};
-
+const healthQuery='척추 OR 관절 OR 심뇌혈관 OR 로봇수술 OR 서울아산병원 OR 세브란스 OR 삼성서울병원 OR 의협 OR 재생의료 OR 첨단재생의료 병원 뉴스';
 const competitors=[
-  {name:'기쁨병원',       color:'#e91e8c', desc:'외과 전문',                   q:'"기쁨병원"'},
-  {name:'나누리병원',     color:'#34a853', desc:'척추·관절 전문',               q:'"나누리병원"'},
-  {name:'동탄시티병원',   color:'#8d6e63', desc:'척추·관절 전문',               q:'"동탄시티병원"'},
-  {name:'명지병원',       color:'#24c1e0', desc:'스마트 종합병원',              q:'"명지병원"'},
-  {name:'수원윌스기념병원',color:'#3949ab', desc:'척추·뇌신경 전문',            q:'"수원윌스기념병원"'},
-  {name:'안양윌스기념병원',color:'#00838f', desc:'척추·뇌신경 전문',            q:'"안양윌스기념병원"'},
-  {name:'양지병원',       color:'#00897b', desc:'종합병원',                    q:'"양지병원"'},
-  {name:'연세사랑병원',   color:'#fa7b17', desc:'관절·척추 전문',              q:'"연세사랑병원"'},
-  {name:'우리들병원',     color:'#9334e6', desc:'척추 전문',                   q:'"우리들병원"'},
-  {name:'제일정형외과병원',color:'#ea4335', desc:'정형외과 전문',               q:'"제일정형외과병원"'},
-  {name:'힘찬병원',       color:'#f4a400', desc:'관절 전문',                   q:'"힘찬병원"'},
+  {name:'기쁨병원',        color:'#e91e8c', desc:'외과 전문',          q:'"기쁨병원"'},
+  {name:'나누리병원',      color:'#34a853', desc:'척추·관절 전문',      q:'"나누리병원"'},
+  {name:'동탄시티병원',    color:'#8d6e63', desc:'척추·관절 전문',      q:'"동탄시티병원"'},
+  {name:'명지병원',        color:'#24c1e0', desc:'스마트 종합병원',     q:'"명지병원"'},
+  {name:'수원윌스기념병원', color:'#3949ab', desc:'척추·뇌신경 전문',   q:'"수원윌스기념병원"'},
+  {name:'안양윌스기념병원', color:'#00838f', desc:'척추·뇌신경 전문',   q:'"안양윌스기념병원"'},
+  {name:'양지병원',        color:'#00897b', desc:'종합병원',            q:'"양지병원"'},
+  {name:'연세사랑병원',    color:'#fa7b17', desc:'관절·척추 전문',      q:'"연세사랑병원"'},
+  {name:'우리들병원',      color:'#9334e6', desc:'척추 전문',           q:'"우리들병원"'},
+  {name:'제일정형외과병원', color:'#ea4335', desc:'정형외과 전문',       q:'"제일정형외과병원"'},
+  {name:'힘찬병원',        color:'#f4a400', desc:'관절 전문',           q:'"힘찬병원"'},
 ];
-const monitors=[];
 
-// ── 유틸 ──────────────────────────────────────────
 function tick(){
   const now=new Date(),days=['일','월','화','수','목','금','토'];
   let h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
@@ -192,10 +168,7 @@ function nowStr(){const d=new Date();return`· ${String(d.getHours()).padStart(2
 function badge(f){return f==='n'?'<span class="src-n">N</span>':'<span class="src-g">G</span>';}
 async function fetchNews(q){const r=await fetch(`${API}?query=${encodeURIComponent(q)}`);return r.json();}
 
-// ── 탭 전환 (제거됨) ─────────────────────────────
-
-// ── 통합 의료 뉴스 로드 ───────────────────────────
-async function loadTabNews(){
+async function loadHealthNews(){
   const el=document.getElementById('health-news');
   try{
     const d=await fetchNews(healthQuery);
@@ -209,12 +182,11 @@ async function loadTabNews(){
   }
 }
 
-// ── 강남베드로 뉴스 ───────────────────────────────
 async function loadMainHosp(){
   const el=document.getElementById('main-hosp-news');
   try{
     const d=await fetchNews(mainHosp.q);
-    const items=[...d.naver,...d.google].slice(0,4);
+    const items=[...d.naver,...d.google].slice(0,6);
     el.innerHTML=items.length
       ?`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0 20px;">${items.map(n=>`<a class="hosp-news-item" href="${n.url}" target="_blank" rel="noopener noreferrer"><div class="hosp-news-title" style="font-size:13px;">${n.title}</div><div class="meta">${badge(n.from)} ${n.source} · ${n.time}</div></a>`).join('')}</div>`
       :'<div style="font-size:12px;color:#aaa;padding:8px 0;">최근 기사 없음</div>';
@@ -223,17 +195,15 @@ async function loadMainHosp(){
   }
 }
 
-// ── 병원 카드 렌더 ────────────────────────────────
-function hospCardHtml(h){
-  const nUrl=`https://search.naver.com/search.naver?where=news&sort=1&query=${encodeURIComponent(h.q)}`;
-  const gUrl=`https://news.google.com/search?q=${encodeURIComponent(h.q)}&hl=ko&gl=KR`;
-  return `<div class="card" id="card-${h.name}">
-    <div class="hosp-header">
-      <div class="badge" style="background:${h.color};font-size:10px;">${h.name.slice(0,2)}</div>
-      <div><div class="hosp-name">${h.name}</div><div class="hosp-desc">${h.desc}</div></div>
-    </div>
-    <div class="loading-row"><div class="spinner"></div>검색 중...</div>
-  </div>`;
+function initCards(){
+  document.getElementById('competitor-grid').innerHTML=competitors.map(h=>`
+    <div class="card" id="card-${h.name}">
+      <div class="hosp-header">
+        <div class="badge" style="background:${h.color};font-size:10px;">${h.name.slice(0,2)}</div>
+        <div><div class="hosp-name">${h.name}</div><div class="hosp-desc">${h.desc}</div></div>
+      </div>
+      <div class="loading-row"><div class="spinner"></div>검색 중...</div>
+    </div>`).join('');
 }
 
 async function fillCard(h){
@@ -253,21 +223,20 @@ async function fillCard(h){
 }
 
 async function loadHospCards(){
-  document.getElementById('competitor-grid').innerHTML=competitors.map(hospCardHtml).join('');
-  document.getElementById('monitor-grid').innerHTML=monitors.map(hospCardHtml).join('');
-  for(const h of [...competitors,...monitors]){
+  initCards();
+  for(const h of competitors){
     await fillCard(h);
     await new Promise(r=>setTimeout(r,300));
   }
 }
 
-// ── 전체 로드 ──────────────────────────────────────
 async function loadAll(){
   const btn=document.getElementById('ref-btn');
   btn.disabled=true;btn.textContent='⟳ 로딩 중...';
   document.getElementById('main-hosp-news').innerHTML='<div class="loading-row"><div class="spinner"></div>검색 중...</div>';
   document.getElementById('health-news').innerHTML='<div class="loading-row"><div class="spinner"></div>뉴스 불러오는 중...</div>';
-  await Promise.all([loadTabNews(), loadMainHosp(), loadHospCards()]);
+  initCards();
+  await Promise.all([loadHealthNews(),loadMainHosp(),loadHospCards()]);
   btn.disabled=false;btn.textContent='🔄 새로고침';
 }
 
